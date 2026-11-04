@@ -18,11 +18,18 @@ so no sequence numbers are needed.
 """
 from __future__ import annotations
 
+import logging
 import os
 import threading
 import uuid
 from pathlib import Path
 from typing import Any
+
+#: Every stage message, fallback notice and failure is mirrored here so
+#: ``docker logs -f`` / the process stdout is a usable backend log — the SSE
+#: event log alone is invisible to operators (and gone when the job leaves
+#: memory). Logged outside the condition so a slow handler can't stall jobs.
+_log = logging.getLogger("hypro.job")
 
 #: ``<repo>`` — sidecar/ sits two levels below the repository root.
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -144,6 +151,8 @@ class JobStore:
             job.update(stage=stage, percent=int(percent), message=message)
             job["events"].append(("progress", payload))
             self._cv.notify_all()
+        _log.info("job %s %-10s %3d%% %s",
+                  job_id[:8], stage, int(percent), message)
 
     def log(self, job_id: str, stage: str, message: str) -> None:
         """Record a non-fatal ``log`` notice (contract: brain fallback etc.)."""
@@ -152,6 +161,7 @@ class JobStore:
             job = self._locked(job_id)
             job["events"].append(("log", payload))
             self._cv.notify_all()
+        _log.warning("job %s %-10s note: %s", job_id[:8], stage, message)
 
     def finish(self, job_id: str, result: dict[str, Any]) -> None:
         """Mark the job done, pin percent at 100 and emit the ``done`` event."""
@@ -161,6 +171,11 @@ class JobStore:
                        message="done", result=dict(result))
             job["events"].append(("done", {"result": dict(result)}))
             self._cv.notify_all()
+        stats = result.get("stats") or {}
+        _log.info("job %s done       kept=%.1fs/%ss cues=%s brain=%s",
+                  job_id[:8], float(stats.get("kept") or 0),
+                  stats.get("source_duration"), stats.get("cues"),
+                  stats.get("brain"))
 
     def fail(self, job_id: str, message: str) -> None:
         """Mark the job errored and emit the ``error`` event (then SSE closes)."""
@@ -170,6 +185,7 @@ class JobStore:
                        message=message)
             job["events"].append(("error", {"error": message}))
             self._cv.notify_all()
+        _log.error("job %s FAILED: %s", job_id[:8], message)
 
     # -------------------------------------------------------------- reads
     def get(self, job_id: str) -> dict[str, Any] | None:

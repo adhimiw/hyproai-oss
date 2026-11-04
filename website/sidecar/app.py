@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import re
 import shutil
@@ -32,6 +33,14 @@ import sys
 import uuid
 from pathlib import Path
 from typing import Any, BinaryIO
+
+# Pipeline events are mirrored to stdout by jobs.py so `docker logs -f` is a
+# real backend log. uvicorn only configures its own loggers, so the root
+# logger needs a handler before the first job runs (no-op if one exists).
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-5s %(name)s: %(message)s",
+)
 
 # Bootstrap: sibling modules (jobs, pipeline) and the core package.
 _HERE = Path(__file__).resolve().parent

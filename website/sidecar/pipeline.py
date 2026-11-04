@@ -178,7 +178,8 @@ def _run(store: jobs.JobStore, job_id: str) -> None:
         kept = sum(e - s for s, e in keep)
         store.progress(job_id, "analyze", STAGE_PERCENT["analyze"][1],
                        f"keeping {kept:.1f}/{info.duration:.1f}s "
-                       f"in {len(keep)} ranges")
+                       f"in {len(keep)} "
+                       f"{'range' if len(keep) == 1 else 'ranges'}")
 
         # ------------------------------------------------------- captions
         stage = "captions"
@@ -209,7 +210,8 @@ def _run(store: jobs.JobStore, job_id: str) -> None:
         # --------------------------------------------------------- render
         stage = "render"
         store.progress(job_id, "render", STAGE_PERCENT["render"][0],
-                       f"rendering {len(keep)} cuts"
+                       f"rendering {len(keep)} "
+                       f"{'cut' if len(keep) == 1 else 'cuts'}"
                        + (" with burned captions" if opts["burn"] else ""))
         ass = str(files / "captions.ass") if opts["burn"] else None
         render_edited(src_for_render, keep, str(files / "edited.mp4"),
