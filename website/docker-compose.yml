@@ -31,6 +31,8 @@ services:
     build:
       context: ./web
       dockerfile: ../Dockerfile.web
+      args:
+        SIDECAR_URL: http://sidecar:8787
     ports:
       - "${WEB_PORT:-3000}:3000"
     environment:

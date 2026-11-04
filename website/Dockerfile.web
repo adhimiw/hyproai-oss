@@ -8,7 +8,12 @@ FROM node:26-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
+# Rewrites are baked at build time, so the sidecar URL must be present here —
+# runtime env alone is too late for /api/sidecar/* (the route handler reads it
+# at request time, the rewrite manifest does not).
+ARG SIDECAR_URL=http://localhost:8787
+ENV SIDECAR_URL=$SIDECAR_URL \
+    NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 FROM node:26-alpine AS run
