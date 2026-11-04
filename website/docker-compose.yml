@@ -13,8 +13,15 @@ services:
     ports:
       - "8787:8787"
     environment:
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       HYPRO_DATA_DIR: /data
+    # Pick the key up from the repo-root .env automatically, so a plain
+    # `docker compose up` keeps Gemini enabled instead of silently falling
+    # back to local whisper after a recreate. Optional: the sidecar works
+    # without a key (brain falls back to local). Note: do NOT also set
+    # GEMINI_API_KEY under `environment:` — that would override this file.
+    env_file:
+      - path: ../.env
+        required: false
     volumes:
       - hypro-data:/data
       - hypro-hf:/root/.cache/huggingface

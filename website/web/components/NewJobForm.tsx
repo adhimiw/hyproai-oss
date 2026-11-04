@@ -302,7 +302,7 @@ export default function NewJobForm() {
                   ) : (
                     presets.map((preset) => (
                       <option key={preset.id} value={preset.id}>
-                        {preset.id} · {preset.mode}
+                        {preset.name ?? preset.id} · {preset.mode}
                       </option>
                     ))
                   )}
@@ -322,7 +322,13 @@ export default function NewJobForm() {
                   </button>
                 </>
               ) : (
-                <p className="field-hint">id · mode, from the sidecar</p>
+                <p className="field-hint">
+                  {presets?.find((preset) => preset.id === style)
+                    ? `preset id: ${style}`
+                    : presets
+                      ? `${presets.length} presets from the sidecar`
+                      : "loading styles…"}
+                </p>
               )}
             </div>
           </div>

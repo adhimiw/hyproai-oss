@@ -24,6 +24,7 @@ export interface Health {
 /** One entry of GET /presets (extra fields pass through untouched). */
 export interface Preset {
   id: string;
+  name?: string;
   mode: string;
   font?: string;
   size?: number;

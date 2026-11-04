@@ -96,6 +96,10 @@ When `status == "done"`, `result` is:
 ```
 File fields are names — fetch them from `GET /jobs/{id}/files/{name}`.
 
+`stats.ranges` is the number of **keep** ranges in the cutlist (contiguous
+segments that survive), not the number of cuts — N silences in the middle
+leave N+1 keep ranges. `stats.dropped` is a reason → count histogram.
+
 ### `GET /jobs/{id}/events` — SSE
 - Replays the full stored event log first (refresh-safe), then follows live.
 - Heartbeat comment `: ping` every ~15 s.

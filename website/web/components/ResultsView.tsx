@@ -174,8 +174,11 @@ export default function ResultsView({ jobId, result, job }: ResultsViewProps) {
               <dd>{formatPercent(stats.keep_ratio)}</dd>
             </div>
             <div className="stat">
-              <dt>Cut ranges</dt>
-              <dd>{stats.ranges}</dd>
+              <dt>Keep ranges</dt>
+              <dd>
+                {stats.ranges}
+                <span className="sub">segments</span>
+              </dd>
             </div>
             <div className="stat">
               <dt>Caption cues</dt>
