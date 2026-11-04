@@ -165,8 +165,16 @@ def main() -> int:
     print(f"     {len(events)} events in {dt:.0f}s; stages seen: {stages}")
     check(error is None, f"job completed without error ({error})")
     check(result is not None, "SSE done carried result")
-    check(any(e == "log" for e, _ in events) or args.brain == "local",
-          "brain log event present (gemini run)") if args.brain == "gemini" else None
+    # Brain honesty. `log` is emitted ONLY on the gemini -> local fallback
+    # path (brain.py transcribe()), so a clean Gemini run must have no log
+    # event, and a fallback must never be silent: the two must move together.
+    # (A fallback also flips stats.brain to "local", caught at line ~230.)
+    if result is not None and args.brain == "gemini":
+        brain_used = (result.get("stats") or {}).get("brain")
+        fell_back = any(e == "log" for e, _ in events)
+        check((brain_used == "gemini") != fell_back,
+              f"brain reporting honest (used={brain_used}, "
+              f"fallback logged={fell_back})")
     if result is None:
         report()
 
