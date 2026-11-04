@@ -41,16 +41,11 @@ on Vercel-style serverless. Three honest options:
 | Code sharing with skill | Lexicons + cutlist JSON + preset JSON shared; ASS/XML writers duplicated in TS | **100 % — same Python package** | Same as B |
 | Effort | Medium (ASS compiler + FCP7 XML writer in TS) | Low (HTTP wrapper around existing core) | Medium |
 
-❓ **Open question for the user:** deploy target.
-- **A** = free hosting, private, demo-able, but slow on long videos.
-- **B** = one `POST /api/edit` wrapping the exact code we just tested; fastest
-  to ship, matches "full-stack Next.js" literally (API routes are the
-  full-stack part), needs a $5 VPS or Docker on a home server.
-- **C** = B's API for heavy lifting + an in-browser preview renderer.
-
-**My recommendation: B first, A as the "privacy mode" follow-up.** The whole
-point of Core → Skill → Website was code reuse; B reuses the Python core 1:1
-and ships the website in days, not weeks.
+✅ **Deploy target (user decision): B — Next.js + Python sidecar.** Next.js
+API routes wrap the exact Python core being tested now; 100 % code reuse,
+ships fastest, real ffmpeg. Needs a ~$5/mo VPS or Docker on a home server
+(video uploads to the user's server). The browser-only TS+wasm path (A) stays
+a later "privacy mode" follow-up.
 
 ## 3. Recommended pipeline (option B)
 

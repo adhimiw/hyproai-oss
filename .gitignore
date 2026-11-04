@@ -18,3 +18,7 @@ out/
 
 # OS
 .DS_Store
+
+# Secrets (Gemini API key etc.)
+.env
+*.env
