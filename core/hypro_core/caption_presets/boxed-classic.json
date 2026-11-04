@@ -1,0 +1,27 @@
+{
+  "id": "boxed-classic",
+  "name": "Boxed Classic",
+  "version": 1,
+  "refResolution": { "w": 1080, "h": 1920 },
+  "typography": {
+    "fontFamily": "Inter",
+    "fontFallback": ["Noto Sans", "Noto Sans Devanagari"],
+    "fontSize": 64, "bold": false, "uppercase": false, "letterSpacing": 0
+  },
+  "colors": {
+    "base": "#FFFFFF", "highlight": "#FFFFFF",
+    "outline": "#000000", "shadow": "#000000", "boxBackground": "#000000"
+  },
+  "layout": {
+    "align": 2, "marginH": 60, "marginV": 90,
+    "maxWordsPerLine": 6, "maxCharsPerLine": 40, "maxLineDurationMs": 3500,
+    "pauseBreakMs": 400
+  },
+  "stroke": { "borderStyle": 3, "outlineWidth": 10, "shadowDepth": 0, "glowBlur": 0 },
+  "animation": {
+    "mode": "static",
+    "karaokeTag": "kf",
+    "popScale": 1.0, "popInMs": 0, "popOutMs": 0,
+    "slidePx": 0, "fadeInMs": 120, "fadeOutMs": 120
+  }
+}

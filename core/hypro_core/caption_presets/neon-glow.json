@@ -1,0 +1,27 @@
+{
+  "id": "neon-glow",
+  "name": "Neon Glow",
+  "version": 1,
+  "refResolution": { "w": 1080, "h": 1920 },
+  "typography": {
+    "fontFamily": "Poppins",
+    "fontFallback": ["Noto Sans", "Noto Sans Devanagari"],
+    "fontSize": 72, "bold": true, "uppercase": false, "letterSpacing": 0
+  },
+  "colors": {
+    "base": "#7DF9FF", "highlight": "#FF4FD8",
+    "outline": "#050510", "shadow": "#FF4FD8", "boxBackground": "#000000"
+  },
+  "layout": {
+    "align": 2, "marginH": 60, "marginV": 420,
+    "maxWordsPerLine": 6, "maxCharsPerLine": 30, "maxLineDurationMs": 3000,
+    "pauseBreakMs": 400
+  },
+  "stroke": { "borderStyle": 1, "outlineWidth": 10, "shadowDepth": 4, "glowBlur": 3 },
+  "animation": {
+    "mode": "static",
+    "karaokeTag": "kf",
+    "popScale": 1.0, "popInMs": 0, "popOutMs": 0,
+    "slidePx": 0, "fadeInMs": 250, "fadeOutMs": 250
+  }
+}

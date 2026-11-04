@@ -1,0 +1,27 @@
+{
+  "id": "minimal-fade",
+  "name": "Minimal Fade",
+  "version": 1,
+  "refResolution": { "w": 1080, "h": 1920 },
+  "typography": {
+    "fontFamily": "Inter",
+    "fontFallback": ["Noto Sans", "Noto Sans Devanagari"],
+    "fontSize": 60, "bold": false, "uppercase": false, "letterSpacing": 0
+  },
+  "colors": {
+    "base": "#F2F2F2", "highlight": "#F2F2F2",
+    "outline": "#000000", "shadow": "#000000", "boxBackground": "#000000"
+  },
+  "layout": {
+    "align": 2, "marginH": 80, "marginV": 360,
+    "maxWordsPerLine": 8, "maxCharsPerLine": 42, "maxLineDurationMs": 4000,
+    "pauseBreakMs": 600
+  },
+  "stroke": { "borderStyle": 1, "outlineWidth": 3, "shadowDepth": 1, "glowBlur": 0 },
+  "animation": {
+    "mode": "static",
+    "karaokeTag": "kf",
+    "popScale": 1.0, "popInMs": 0, "popOutMs": 0,
+    "slidePx": 0, "fadeInMs": 400, "fadeOutMs": 300
+  }
+}

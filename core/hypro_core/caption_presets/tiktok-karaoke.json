@@ -1,0 +1,27 @@
+{
+  "id": "tiktok-karaoke",
+  "name": "TikTok Karaoke",
+  "version": 1,
+  "refResolution": { "w": 1080, "h": 1920 },
+  "typography": {
+    "fontFamily": "Montserrat",
+    "fontFallback": ["Noto Sans Devanagari", "Noto Sans"],
+    "fontSize": 76, "bold": true, "uppercase": false, "letterSpacing": 0
+  },
+  "colors": {
+    "base": "#FFFFFF", "highlight": "#FFD400",
+    "outline": "#000000", "shadow": "#000000", "boxBackground": "#000000"
+  },
+  "layout": {
+    "align": 2, "marginH": 60, "marginV": 420,
+    "maxWordsPerLine": 4, "maxCharsPerLine": 20, "maxLineDurationMs": 2400,
+    "pauseBreakMs": 350
+  },
+  "stroke": { "borderStyle": 1, "outlineWidth": 6, "shadowDepth": 2, "glowBlur": 0 },
+  "animation": {
+    "mode": "karaoke_sweep",
+    "karaokeTag": "kf",
+    "popScale": 1.0, "popInMs": 0, "popOutMs": 0,
+    "slidePx": 0, "fadeInMs": 0, "fadeOutMs": 0
+  }
+}

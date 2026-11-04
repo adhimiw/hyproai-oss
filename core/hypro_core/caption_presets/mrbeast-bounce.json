@@ -1,0 +1,27 @@
+{
+  "id": "mrbeast-bounce",
+  "name": "MrBeast Bounce",
+  "version": 1,
+  "refResolution": { "w": 1080, "h": 1920 },
+  "typography": {
+    "fontFamily": "Anton",
+    "fontFallback": ["Archivo Black", "Noto Sans", "Noto Sans Devanagari"],
+    "fontSize": 96, "bold": true, "uppercase": true, "letterSpacing": 0
+  },
+  "colors": {
+    "base": "#FFFFFF", "highlight": "#FFE600",
+    "outline": "#000000", "shadow": "#000000", "boxBackground": "#000000"
+  },
+  "layout": {
+    "align": 2, "marginH": 50, "marginV": 460,
+    "maxWordsPerLine": 3, "maxCharsPerLine": 15, "maxLineDurationMs": 2000,
+    "pauseBreakMs": 350
+  },
+  "stroke": { "borderStyle": 1, "outlineWidth": 9, "shadowDepth": 4, "glowBlur": 0 },
+  "animation": {
+    "mode": "word_pop",
+    "karaokeTag": "kf",
+    "popScale": 1.25, "popInMs": 80, "popOutMs": 140,
+    "slidePx": 40, "fadeInMs": 150, "fadeOutMs": 100
+  }
+}

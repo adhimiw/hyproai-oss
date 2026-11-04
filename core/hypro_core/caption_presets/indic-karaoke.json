@@ -1,0 +1,28 @@
+{
+  "id": "indic-karaoke",
+  "name": "Indic Karaoke",
+  "version": 1,
+  "refResolution": { "w": 1080, "h": 1920 },
+  "typography": {
+    "fontFamily": "Mukta",
+    "fontFallback": ["Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans"],
+    "fontSize": 80, "bold": true, "uppercase": false, "letterSpacing": 0
+  },
+  "colors": {
+    "base": "#FFFFFF", "highlight": "#FF9E00",
+    "outline": "#000000", "shadow": "#000000", "boxBackground": "#000000"
+  },
+  "layout": {
+    "align": 2, "marginH": 60, "marginV": 420,
+    "maxWordsPerLine": 4, "maxCharsPerLine": 24, "maxLineDurationMs": 2600,
+    "pauseBreakMs": 400
+  },
+  "stroke": { "borderStyle": 1, "outlineWidth": 7, "shadowDepth": 3, "glowBlur": 0 },
+  "animation": {
+    "mode": "karaoke_sweep",
+    "karaokeTag": "kf",
+    "popScale": 1.0, "popInMs": 0, "popOutMs": 0,
+    "slidePx": 0, "fadeInMs": 0, "fadeOutMs": 0
+  },
+  "notes": "Indic shaping: burn via ffmpeg's ass= filter (libass + HarfBuzz does OpenType shaping). If glyphs ever render unshaped, append :shaping=complex to the filter; ship fonts in ./fonts and pass fontsdir=./fonts — libass fontconfig fallback covers any glyph Mukta lacks. Group only on ASR whitespace tokens, never split a token (research/06 §5.2 rule 6)."
+}
