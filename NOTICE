@@ -1,0 +1,49 @@
+hyproai-oss
+Copyright (c) 2026 hyproai-oss contributors
+
+SPDX-License-Identifier: MIT
+
+Unless otherwise noted, all source code in this repository is licensed
+under the MIT License.
+
+--------------------------------------------------------------------------------
+THIRD-PARTY DATA — REQUIRED ATTRIBUTION
+--------------------------------------------------------------------------------
+
+The romanization lexicons under
+  core/hypro_core/romanize/data/lexicon_*.json
+  core/hypro_core/romanize/data/gold_*.json
+are DERIVED from the Dakshina dataset:
+
+  © Google Research, "Processing South Asian Languages Written in the Latin
+  Script: the Dakshina Dataset", LREC 2020.
+  https://github.com/google-research-datasets/dakshina
+  License: CC-BY-SA-4.0
+
+Because CC-BY-SA is share-alike, these derived lexicon files remain licensed
+under CC-BY-SA-4.0 (they are data, not code). If you redistribute the
+lexicons — unmodified or modified — you must:
+
+  1. Give attribution to Google Research (LREC 2020) and link the source.
+  2. License the redistributed lexicons under CC-BY-SA-4.0 (or compatible).
+  3. Indicate changes made.
+
+The MIT-licensed code in this repository does NOT apply CC-BY-SA terms to
+itself. Rebuild instructions: download the per-language parquet files from
+  https://huggingface.co/datasets/Anvesh-Lankala/Copy_Dakshina_Google_research_dataset
+into core/hypro_core/romanize/data/raw/, then run:
+
+  python hypro_core/romanize/build_lexicon.py
+
+--------------------------------------------------------------------------------
+THIRD-PARTY RUNTIME DEPENDENCIES (installed separately, not vendored)
+--------------------------------------------------------------------------------
+
+  ctranslate2 / Singla0009/all-indic-transliteration   MIT  (neural OOV fallback)
+  indic-transliteration                               MIT  (scheme fallback)
+  OpenTimelineIO + adapters                           Apache-2.0
+  pysubs2                                             MIT  (caption stage)
+  faster-whisper / whisperX                           MIT / BSD-2 (ASR stage)
+
+Model weights downloaded at runtime carry their own licenses; see NOTICE for
+any file added to this repository under a non-MIT license.

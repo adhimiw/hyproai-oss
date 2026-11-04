@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Dakshina raw data (28 MB, rebuild with build_lexicon.py after download)
+core/hypro_core/romanize/data/raw/
+
+# Test outputs
+/tmp/
+*.log
+
+# Node (website stage)
+node_modules/
+.next/
+out/
+
+# OS
+.DS_Store

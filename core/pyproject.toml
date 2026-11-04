@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hypro-core"
+version = "0.1.0"
+description = "Open-source AI video editor engine: Thanglish romanization + NLE export (HyproAI clone core)"
+readme = "../README.md"
+license = { file = "../LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    "opentimelineio>=0.17",
+    "otio-fcp-adapter",
+    "otio-cmx3600-adapter",
+]
+
+[project.optional-dependencies]
+# L3 neural OOV fallback (IndicXlit via CTranslate2); cascade degrades to
+# lexicon+rules without it
+neural = ["ctranslate2>=4.0", "huggingface_hub"]
+# scheme fallback when CT2 unavailable
+scheme = ["indic-transliteration"]
+eval = ["pandas", "pyarrow"]
+
+[project.scripts]
+hypro = "hypro_core.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["hypro_core*"]
+
+[tool.setuptools.package-data]
+hypro_core = ["romanize/data/*.json", "romanize/data/*.jsonl"]
