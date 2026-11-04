@@ -32,7 +32,7 @@ services:
       context: ./web
       dockerfile: ../Dockerfile.web
     ports:
-      - "3000:3000"
+      - "${WEB_PORT:-3000}:3000"
     environment:
       SIDECAR_URL: http://sidecar:8787
     depends_on:

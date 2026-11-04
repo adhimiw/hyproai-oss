@@ -1,0 +1,19 @@
+# Sidecar runtime deps — versions from the working .venv (Python 3.12),
+# pinned loose (floor = the version verified in research/, cap = next major).
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+python-multipart>=0.0.30,<1
+# local whisper brain (faster-whisper → ctranslate2; research/03)
+faster-whisper>=1.1,<2
+# nle/ XML + srt/ass artifacts (hypro_core.export.nle)
+opentimelineio>=0.17,<1
+# OTIO adapter plugins — core/pyproject.toml declares these, but the image
+# installs core with --no-deps (Dockerfile.sidecar), so they must be listed
+# here or export_nle dies at the export stage: "Could not find plugin:
+# 'fcp_xml'" (FCP7 XML) / no cmx3600 for the EDLs.
+otio-fcp-adapter
+otio-cmx3600-adapter
+pysubs2>=1.9,<2
+# audio stage + stats math (hypro_core.audio, cutlist)
+soundfile>=0.12
+numpy>=1.26

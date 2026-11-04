@@ -7,6 +7,10 @@ __pycache__/
 # Dakshina raw data (28 MB, rebuild with build_lexicon.py after download)
 core/hypro_core/romanize/data/raw/
 
+# Sidecar runtime data (uploads, job artifacts) — HYPRO_DATA_DIR default
+/data/
+website/sidecar/__pycache__/
+
 # Test outputs
 /tmp/
 *.log
