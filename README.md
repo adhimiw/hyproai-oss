@@ -6,7 +6,9 @@ Tamil/Hindi/Telugu/…, cut the dead air, and caption it in the Roman letters
 your audience actually reads (Thanglish, Hinglish, Telugish, Kanglish,
 Malayalish, Benglish).
 
-**Status:** core layers built. Skill and website (Next.js + Gemini API) next.
+**Status:** core pipeline + skill + website built and green — sidecar 43/43,
+Next build clean, full-stack integration all PASS (incl. 30 MB upload
+through the proxy and SSE through the rewrite).
 
 ## The two main layers
 
@@ -62,9 +64,15 @@ A1 = music, A2 = voice. Dropped ranges become review markers.
 core/hypro_core/
   romanize/     Thanglish layer (cascade, rules, lexicons, eval harness)
   export/       NLE export layer (OTIO → XML/EDL/SRT/JSX)
+  transcribe.py analyze.py   word clock + silence/retake/filler cutlist
+  captions.py audio.py render.py   ASS burn, loudness chain, ffmpeg render
   cutlist.py    shared edit-decision contract (analyze → render → export)
-research/       8 field research reports (ASR, romanization, silence/retake,
-                captions, audio, NLE export, OSS landscape, product spec)
+skill/SKILL.md  agent skill — give it a video, the pipeline runs
+website/        Next.js UI + Python sidecar (API_CONTRACT.md is the spec)
+scripts/        e2e smoke test, romanize eval, Gemini probes/experiments
+research/       12 field research reports (ASR, romanization, silence/retake,
+                captions, audio, NLE export, OSS landscape, product spec,
+                website arch, Gemini export layer, Tamil transcribe)
 ```
 
 ## Build & test
@@ -80,6 +88,34 @@ cd ..
 
 Lexicons are prebuilt (CC-BY-SA, see **NOTICE**); to rebuild from raw Dakshina
 parquets, drop them in `romanize/data/raw/` and run `build_lexicon.py`.
+
+## Website (Next.js + Python sidecar)
+
+`website/API_CONTRACT.md` is the binding spec between the two services.
+The sidecar wraps the exact same `hypro_core` pipeline the CLI runs, with
+Gemini (`gemini-3.5-transcribe`) as the ASR brain and local faster-whisper
+as automatic fallback; romanization always runs locally.
+
+```bash
+# full stack in Docker (web :3000, sidecar :8787)
+GEMINI_API_KEY=... docker compose -f website/docker-compose.yml up --build
+# port 3000 busy? WEB_PORT=3012 docker compose -f website/docker-compose.yml up
+
+# or run services directly for development
+cd website/sidecar && ../../.venv/bin/python -m uvicorn app:app --port 8787
+cd website/web && npm run dev        # separate terminal
+
+# test gates
+cd website/sidecar && ../../.venv/bin/python test_sidecar.py   # no key needed
+cd website/web && npm run build                                  # TS strict
+.venv/bin/python website/integration_test.py --brain local       # full stack
+```
+
+One transport detail: `/api/sidecar/*` is a Next rewrite, except
+`POST /api/sidecar/uploads`, which is a streaming route handler
+(`app/api/sidecar/uploads/route.ts`) because Next truncates rewritten
+request bodies at 10 MB — a >10 MB video used to arrive at the sidecar as
+a mid-stream disconnect and surface as a 500.
 
 ## Licensing
 
