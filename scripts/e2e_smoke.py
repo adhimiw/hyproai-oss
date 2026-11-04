@@ -23,8 +23,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 CORE = REPO / "core"
 PY = REPO / ".venv" / "bin" / "python"
+# Real Tamil speech reel: the Janani reel is instrumental (no speech), so the
+# silence guard correctly keeps 100% of it — which would leave this smoke test
+# with no cuts and no captions. Vigneshwaran has verified dead air at
+# 32.5-40.6s (plus 0-6.4 / 54.4-84.7), so a slice starting at 23s always
+# exercises cut + caption + romanize on genuine speech (Stage A findings).
 FOOTAGE = (Path.home() / "Downloads" / "insta_reels" /
-           "Janani ｜ Vocal⧸Veena Tutor_Dd9FDSsxDgH.mp4")
+           "Vigneshwaran A_DePMR2xyGLL.mp4")
+DEFAULT_SS = 23.0  # slice [23, 53) contains the interior dead-air gap
 
 FAILURES: list[str] = []
 
@@ -48,8 +54,11 @@ def ffprobe_dur(path: Path) -> float:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seconds", type=float, default=30.0)
-    ap.add_argument("--lang", default=None,
-                    help="force lang (default: let ASR detect)")
+    ap.add_argument("--ss", type=float, default=DEFAULT_SS,
+                    help="slice start offset in the source")
+    ap.add_argument("--lang", default="ta",
+                    help="force lang (default ta = deterministic romanization "
+                         "path; pass '' to let ASR detect)")
     ap.add_argument("--keep", action="store_true",
                     help="keep the temp workspace for inspection")
     args = ap.parse_args()
@@ -67,7 +76,8 @@ def main() -> int:
     # 1. cut a short clip from real footage (skip the first 5s intro)
     clip = work / "input.mp4"
     subprocess.run(
-        ["ffmpeg", "-y", "-v", "error", "-ss", "5", "-t", str(args.seconds),
+        ["ffmpeg", "-y", "-v", "error", "-ss", str(args.ss),
+         "-t", str(args.seconds),
          "-i", str(FOOTAGE), "-c", "copy", str(clip)],
         check=True,
     )
