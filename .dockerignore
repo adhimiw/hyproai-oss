@@ -1,0 +1,15 @@
+# Build-context excludes for the sidecar image (context = repo root).
+# Keeps secrets, venvs, and caches out of the image and fast to upload.
+.git
+.venv
+.env
+*.env
+tmp
+data
+**/__pycache__
+**/*.pyc
+website/web
+research
+skill
+core/hypro_core/romanize/data/raw
+core/hypro_core/romanize/data/eval_*.jsonl

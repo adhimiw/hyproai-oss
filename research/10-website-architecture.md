@@ -89,9 +89,12 @@ download mp4 / srt / nle.zip ◄──────────  static/ or signe
 
 ## 5. Open items before build
 
-1. ❓ Deploy target (A / B / C above) — user decision.
-2. Pricing check for `gemini-3.5-transcribe` per-minute (budget the demo).
-3. Upload limits: v1 = ≤10 min / ≤500 MB (match HyproAI's free tier shape);
-   chunked upload + Files API for Gemini.
-4. Auth: skip for v1 (rate-limit by IP) or Supabase phone-OTP (OSS parity
-   pick from research 01)? — v1: skip, add before public launch.
+1. ✅ Deploy target: **B** (Next.js + Python sidecar) — decided (see §2).
+2. ✅ Pricing (`gemini-3.5-transcribe`, checked 2026-11-04): **free tier =
+   free of charge**; paid = $2/1M input + $12/1M output tokens at 25 audio
+   tokens/s + 175 text tokens/min → **≈ $0.005 per audio minute** (~$0.05 for
+   a 10-min video). Local whisper fallback stays for zero-cost/self-hosted use.
+3. ✅ Upload limits (v1): ≤10 min / ≤500 MB, enforced at `POST /uploads`
+   (413) — matches HyproAI's free-tier shape (contract §sidecar API).
+4. ✅ Auth (v1): skip — rate-limit by IP later; no user accounts before
+   public launch. Job ids are unguessable UUIDs.

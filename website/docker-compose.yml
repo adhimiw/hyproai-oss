@@ -1,0 +1,45 @@
+# HyproAI OSS website — Next.js (UI) + Python sidecar (ffmpeg pipeline).
+#
+#   GEMINI_API_KEY=... docker compose -f website/docker-compose.yml up --build
+#
+# Browser → web:3000 → /api/sidecar/* rewritten to sidecar:8787 (contract:
+# website/API_CONTRACT.md). Data (uploads, jobs, artifacts) persists in the
+# hypro-data volume; Whisper model downloads persist in hypro-hf.
+services:
+  sidecar:
+    build:
+      context: ..
+      dockerfile: website/Dockerfile.sidecar
+    ports:
+      - "8787:8787"
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      HYPRO_DATA_DIR: /data
+    volumes:
+      - hypro-data:/data
+      - hypro-hf:/root/.cache/huggingface
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8787/health', timeout=5)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      dockerfile: ../Dockerfile.web
+    ports:
+      - "3000:3000"
+    environment:
+      SIDECAR_URL: http://sidecar:8787
+    depends_on:
+      sidecar:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  hypro-data:
+  hypro-hf:

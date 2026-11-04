@@ -70,9 +70,12 @@ research/       8 field research reports (ASR, romanization, silence/retake,
 ## Build & test
 
 ```bash
-uv venv .venv && .venv/bin/pip install -e core   # + opentimelineio, ctranslate2, …
+uv venv .venv
+uv pip install --python .venv/bin/python -e core   # + faster-whisper, pysubs2, …
 cd core
-python -m hypro_core.romanize.eval_romanize --limit 400   # eval + leak gate
+../.venv/bin/python -m hypro_core.romanize.eval_romanize --limit 400  # eval + leak gate
+cd ..
+.venv/bin/python scripts/e2e_smoke.py              # full pipeline end-to-end
 ```
 
 Lexicons are prebuilt (CC-BY-SA, see **NOTICE**); to rebuild from raw Dakshina

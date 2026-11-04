@@ -1,0 +1,28 @@
+# Sidecar image — context is the repo root (see website/docker-compose.yml).
+FROM python:3.12-slim
+
+# ffmpeg does every media job: probe, extract, enhance, render, burn (libass)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Deps first for layer caching: sidecar requirements + the core package itself
+COPY website/sidecar/requirements.txt /app/website/sidecar/requirements.txt
+RUN pip install --no-cache-dir -r /app/website/sidecar/requirements.txt
+
+COPY core/ /app/core/
+RUN pip install --no-cache-dir --no-deps /app/core
+
+COPY website/sidecar/ /app/website/sidecar/
+
+# The sidecar inserts <repo>/core into sys.path itself; HYPRO_DATA_DIR is the
+# only runtime path that matters (mounted as a volume in compose)
+ENV HYPRO_DATA_DIR=/data \
+    PYTHONPATH=/app/core \
+    HF_HOME=/root/.cache/huggingface
+
+EXPOSE 8787
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8787", \
+     "--app-dir", "/app/website/sidecar", "--proxy-headers"]
