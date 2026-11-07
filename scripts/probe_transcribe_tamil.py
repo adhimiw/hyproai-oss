@@ -34,7 +34,7 @@ KEY = next(
     if line.startswith("GEMINI_API_KEY=")
 )
 FOOTAGE = (Path.home() / "Downloads" / "insta_reels" /
-           "Vigneshwaran A_DePMR2xyGLL.mp4")
+           "reel1.mp4")
 # slice [85s, 93.4s): verified clean Tamil speech (local ASR: 20 words,
 # tamil-script ratio 1.00) — regions 0-6.4 are dead air and 41-54 makes the
 # local small model hallucinate, so neither is usable as ground truth.

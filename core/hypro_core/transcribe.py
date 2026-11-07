@@ -352,6 +352,15 @@ def transcribe(
             # lets Whisper normalise away fillers and drift into hallucinated
             # carry-over; the filler stage depends on verbatim output.
             "condition_on_previous_text": False,
+            # Scalar temperature = one deterministic beam pass (beam=5).
+            # The default ladder (0.0..1.0, best_of=5) re-samples with
+            # ctranslate2's per-process random seed whenever greedy trips
+            # the compression/no-speech thresholds, so the SAME audio yields
+            # transcripts, empty output, or an alignment IndexError
+            # depending on the process (observed: 0 vs 14 segments).
+            # Scalar keeps the greedy result in every case (faster-whisper's
+            # all-failed branch selects it) and is reproducible run to run.
+            "temperature": 0.0,
         }
         if initial_prompt is not None:
             tw_kwargs["initial_prompt"] = initial_prompt

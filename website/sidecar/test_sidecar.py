@@ -33,7 +33,7 @@ import brain  # noqa: E402
 import jobs  # noqa: E402
 
 FOOTAGE = (Path.home() / "Downloads" / "insta_reels" /
-           "Vigneshwaran A_DePMR2xyGLL.mp4")
+           "reel1.mp4")
 PY = sys.executable  # the repo venv python — never hardcode its path
 
 FAILURES: list[str] = []

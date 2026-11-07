@@ -31,7 +31,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 SIDECAR = "http://localhost:8787"
 FOOTAGE = (Path.home() / "Downloads" / "insta_reels" /
-           "Vigneshwaran A_DePMR2xyGLL.mp4")
+           "reel1.mp4")
 
 FAILURES: list[str] = []
 
