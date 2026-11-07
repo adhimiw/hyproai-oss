@@ -29,7 +29,7 @@ PY = REPO / ".venv" / "bin" / "python"
 # 32.5-40.6s (plus 0-6.4 / 54.4-84.7), so a slice starting at 23s always
 # exercises cut + caption + romanize on genuine speech (Stage A findings).
 FOOTAGE = (Path.home() / "Downloads" / "insta_reels" /
-           "Vigneshwaran A_DePMR2xyGLL.mp4")
+           "reel1.mp4")
 DEFAULT_SS = 23.0  # slice [23, 53) contains the interior dead-air gap
 
 FAILURES: list[str] = []
@@ -119,10 +119,27 @@ def main() -> int:
         if xmls:
             import xml.etree.ElementTree as ET
             try:
-                ET.parse(xmls[0])
+                root = ET.parse(xmls[0]).getroot()
                 check(True, "xml well-formed")
+                # A/V regression gate: A2 must carry the a-roll audio with
+                # in/out identical to V1, else NLE imports arrive silent.
+                vclip = root.find(".//video/track/clipitem")
+                aclip = root.find(".//audio/track/clipitem")
+                check(aclip is not None, "audio track has a clipitem (A2)")
+                if vclip is not None and aclip is not None:
+                    same = all(vclip.findtext(k) == aclip.findtext(k)
+                               for k in ("start", "end", "in", "out"))
+                    check(same, "A2 in/out identical to V1 (frame-synced)")
+                check(aclip is not None and aclip.find("file") is not None,
+                      "A2 clipitem references the source file")
             except ET.ParseError as e:
                 check(False, f"xml well-formed ({e})")
+        fcpxmls = list(nle.glob("*.fcpxml"))
+        check(len(fcpxmls) == 1, "one .fcpxml (Final Cut Pro)")
+        if fcpxmls:
+            txt = fcpxmls[0].read_text(encoding="utf-8")
+            check('hasAudio="1"' in txt, "fcpxml asset hasAudio=1")
+            check("<audio" in txt, "fcpxml has an audio element")
 
     if edited and edited.exists():
         edur = ffprobe_dur(edited)

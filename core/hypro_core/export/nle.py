@@ -18,18 +18,20 @@ the sequence must start at 00:00:00:00 or the SRT shifts.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
-from ..cutlist import CaptionCue, Cutlist
+from ..cutlist import CaptionCue, Clip, Cutlist
 
 TRACK_ORDER = ["video", "broll", "music", "voice"]  # → V1, V2, A1, A2
 
 
 def _fmt_tc(seconds: float, fps: float) -> str:
     """NLE-style HH:MM:SS:FF timecode (drop-frame-free)."""
-    total = int(round(seconds * fps))
-    ff = total % fps
-    total //= fps
+    rate = max(1, int(round(fps)))          # 29.97 → 30 (NDF convention);
+    total = int(round(seconds * fps))       # int math or hh/mm/ss go float
+    ff = total % rate
+    total //= rate
     ss = total % 60
     total //= 60
     mm = total % 60
@@ -73,13 +75,36 @@ def _write_audio_edl(clips: list, path: Path, fps: float, title: str) -> None:
 
 
 # --------------------------------------------------------------------- OTIO
-def _build_otio(cl: Cutlist, *, compact: bool = False):
+def _voice_clips(cl: Cutlist) -> list[Clip]:
+    """A-roll audio for the A2 (VOICE) track — research 08 §"A/V linking".
+
+    OTIO's FCP7 writer emits no <link>/<sourcetrack>, and a cutlist's video
+    clips carry no audio, so without an explicit audio track every NLE import
+    arrives SILENT (verified: empty <audio><track/> in xmeml, hasAudio="0"
+    in FCPXML). The source of a speech pipeline is a speech recording, so
+    mirror the video cuts onto VOICE with identical in/out — the editor gets
+    sync audio and just links V1↔A2. An explicit voice track (populated by
+    future audio separation) wins, and meta.has_audio=False (silent source)
+    suppresses the mirror.
+    """
+    explicit = cl.tracks.get("voice") or []
+    if explicit:
+        return explicit
+    if not cl.meta.get("has_audio", True):
+        return []
+    return [replace(c, role="voice") for c in cl.tracks.get("video", [])]
+
+
+def _build_otio(cl: Cutlist, *, compact: bool = False,
+                mirror_audio: bool = True):
     """Build an OTIO timeline from a cutlist.
 
     compact=False (default): every role in TRACK_ORDER becomes a track, even
     empty ones — structure preserved for FCP7 XML round-trips.
     compact=True: skip empty tracks — required by the cmx_3600 EDL adapter,
     which rejects timelines with more than one video track.
+    mirror_audio=False: don't synthesize the VOICE track (per-track EDLs
+    stay single-role — a video EDL must not grow an audio track).
     """
     import opentimelineio as otio
 
@@ -94,7 +119,11 @@ def _build_otio(cl: Cutlist, *, compact: bool = False):
     timeline = otio.schema.Timeline(Path(cl.source).stem)
 
     for role in TRACK_ORDER:
-        clips = sorted(cl.tracks.get(role, []), key=lambda x: x.rec_in)
+        if role == "voice" and mirror_audio:
+            source = _voice_clips(cl)
+        else:
+            source = cl.tracks.get(role, [])
+        clips = sorted(source, key=lambda x: x.rec_in)
         if compact and not clips:
             continue
         kind = (otio.schema.TrackKind.Video if role in ("video", "broll")
@@ -111,6 +140,15 @@ def _build_otio(cl: Cutlist, *, compact: bool = False):
                 media_reference=ref,
                 source_range=trange(c.src_in, c.duration),
             )
+            if role == "voice":
+                # fcp_xml dedupes clipitems by serialized equality: a voice
+                # clip identical to its V1 twin would collapse to an empty
+                # <clipitem id="clipitem-1"/> backref — an OTIO reader idiom
+                # Premiere doesn't write (real exports always have full
+                # clipitems; only <file> is abbreviated) and may not resolve,
+                # which would re-create the silent import. Metadata breaks
+                # the tie and stays out of the XML (namespace isn't fcp_xml).
+                clip.metadata["hypro"] = {"track": role}
             # gaps before the clip become Gaps so record timing is exact
             if c.rec_in > pos + 1e-6:
                 track.append(otio.schema.Gap(source_range=trange(0.0, c.rec_in - pos)))
@@ -195,21 +233,49 @@ def export_nle(cl: Cutlist, out_dir: str | Path, name: str = "edit") -> dict:
     otio.adapters.write_to_file(tl, str(otio_path), adapter_name="otio_json")
     written["otio"] = str(otio_path)
 
+    # 3b. FCPXML → Final Cut Pro 10.4+ (FCP imports FCPXML only — research 08
+    # §1.4 — so .xml alone leaves FCP users out). The adapter is a separate
+    # package; if it's absent the export still succeeds and HOWTO says so.
+    fcpx_ok = False
+    try:
+        fcpx_path = out / f"{name}.fcpxml"
+        otio.adapters.write_to_file(tl, str(fcpx_path), adapter_name="fcpx_xml")
+        # The adapter also drops a root-level <asset-clip> per source file
+        # beside <project> (its reader tolerates that; FCP may not — it would
+        # be a second, untrimmed copy of the whole source). Canonical FCPXML
+        # is <resources> + <project> only (adapter's own fcpx_project sample),
+        # so strip anything else at the root before shipping.
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(fcpx_path)
+        root = tree.getroot()
+        for child in list(root):
+            if child.tag not in ("resources", "library", "event", "project"):
+                root.remove(child)
+        tree.write(fcpx_path, encoding="UTF-8", xml_declaration=True)
+        written["fcpxml"] = str(fcpx_path)
+        fcpx_ok = True
+    except Exception:  # adapter not installed — degrade, never fail the export
+        pass
+
     # 4. EDL fallback — one CMX3600 per track (style="premiere")
     edl_dir = out / "tracks"
     edl_dir.mkdir(exist_ok=True)
+    voice_clips = _voice_clips(cl)
     for role in TRACK_ORDER:
-        if not cl.tracks.get(role):
+        track_clips = voice_clips if role == "voice" else cl.tracks.get(role, [])
+        if not track_clips:
             continue
         one = Cutlist(source=cl.source, duration=cl.duration, fps=cl.fps,
                       width=cl.width, height=cl.height,
-                      tracks={role: cl.tracks[role]}, meta=dict(cl.meta))
+                      tracks={role: track_clips}, meta=dict(cl.meta))
         p = edl_dir / f"{role}.edl"
         if role in ("video", "broll"):
-            otio.adapters.write_to_file(_build_otio(one, compact=True), str(p),
-                                        adapter_name="cmx_3600")
+            # mirror_audio=False: per-track EDLs stay single-role
+            otio.adapters.write_to_file(_build_otio(one, compact=True,
+                                                    mirror_audio=False),
+                                        str(p), adapter_name="cmx_3600")
         else:
-            _write_audio_edl(cl.tracks[role], p, cl.fps or 30.0, title=role)
+            _write_audio_edl(track_clips, p, cl.fps or 30.0, title=role)
         written[f"edl:{role}"] = str(p)
 
     # 5. After Effects Route B
@@ -231,11 +297,14 @@ DaVinci Resolve: File ▸ Import ▸ Timeline ▸ {name}.xml   (or {name}.otio, 
                  File ▸ Import ▸ Subtitle ▸ {name}.srt
 After Effects  : File ▸ Scripts ▸ Run Script File ▸ {name}.jsx
                  (or: import {name}.xml in Premiere ▸ save ▸ File ▸ Import ▸ Premiere Project)
-Final Cut Pro  : (optional) needs .fcpxml — not generated by default
+Final Cut Pro  : File ▸ Import ▸ XML… ▸ {name}.fcpxml   (FCP 10.4+; needs
+                 otio-fcpx-xml-adapter — {('written ✓' if fcpx_ok else 'NOT installed, pip install otio-fcpx-xml-adapter then re-run `hypro export`')})
+                 captions: {name}.srt ▸ File ▸ Import ▸ Captions… (or SRT drag-in)
 Belt & braces   : tracks/*.edl (CMX3600, one per track) + cutlist.json
 
 Known gaps (research 08): track NAMES aren't carried by FCP7 XML (V1/A1 only);
-clips may arrive unlinked — link by same-file/same-time, or use AAF on Windows.
+A2 carries the a-roll audio in sync, but V1↔A2 arrive unlinked — select both
+and Link (Ctrl/Cmd+L) — or use AAF on Windows.
 Sequence starts at 00:00:00:00 so the SRT lands correctly.
 """,
         encoding="utf-8",

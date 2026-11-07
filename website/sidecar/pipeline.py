@@ -225,7 +225,8 @@ def _run(store: jobs.JobStore, job_id: str) -> None:
                        "exporting NLE package")
         name = safe_name(Path(video).stem)
         cut.meta.update(name=name, lang=effective_lang, tool="hypro-core",
-                        source_duration=float(info.duration))
+                        source_duration=float(info.duration),
+                        has_audio=bool(info.has_audio))
         cut.save(files / "cutlist.json")
         export_nle(cut, files / "nle", name=name)
         # make_archive(base, root_dir=nle/) → nle.zip whose entries are the

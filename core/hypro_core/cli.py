@@ -155,7 +155,8 @@ def cmd_edit(args: argparse.Namespace) -> int:
 
     # ---------------------------------------------------------- 6. export
     cut.meta.update(name=name, lang=lang, tool="hypro-core",
-                    source_duration=info.duration)
+                    source_duration=info.duration,
+                    has_audio=bool(info.has_audio))
     if not args.no_nle:
         from .export import export_nle
 

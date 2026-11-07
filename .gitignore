@@ -26,3 +26,6 @@ out/
 # Secrets (Gemini API key etc.)
 .env
 *.env
+
+# job artifacts saved from the running stack
+output/

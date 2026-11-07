@@ -13,6 +13,9 @@ dependencies = [
     "opentimelineio>=0.17",
     "otio-fcp-adapter",
     "otio-cmx3600-adapter",
+    # FCPXML for Final Cut Pro (export/nle.py step 3b) — FCP imports FCPXML
+    # only, so without this the .fcpxml artifact is silently skipped
+    "otio-fcpx-xml-adapter",
 ]
 
 [project.optional-dependencies]

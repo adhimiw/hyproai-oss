@@ -13,6 +13,9 @@ opentimelineio>=0.17,<1
 # 'fcp_xml'" (FCP7 XML) / no cmx3600 for the EDLs.
 otio-fcp-adapter
 otio-cmx3600-adapter
+# FCPXML → Final Cut Pro (export/nle.py step 3b; graceful-skip without it,
+# but FCP users then get no timeline file)
+otio-fcpx-xml-adapter
 pysubs2>=1.9,<2
 # audio stage + stats math (hypro_core.audio, cutlist)
 soundfile>=0.12
