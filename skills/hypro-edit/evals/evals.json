@@ -1,0 +1,41 @@
+{
+  "skill_name": "hypro-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just recorded this reel on my phone (Tamil speech): ~/Downloads/insta_reels/reel1.mp4 — can you edit it? Cut the dead air and make those trending karaoke captions.",
+      "expected_output": "Agent probes the file first, then asks the user to pick a caption style (offering presets with vibes) and confirm language/options BEFORE running anything; after the answer it runs hypro edit, verifies outputs, and reports measured kept-duration and cue count.",
+      "files": [],
+      "expectations": [
+        "Runs scripts/probe.sh or ffprobe on the video before any pipeline command",
+        "Asks the user for caption style (and language/what-to-cut) and does not start hypro edit before receiving an answer",
+        "After the answer, runs the hypro edit CLI with --style and --lang matching the user's choice",
+        "Reports verified numbers: edited duration shorter than source, SRT cue count > 0, and the output paths"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "remove the silences from this video, make Hinglish captions, and give me a DaVinci Resolve project. /home/adhithan/Downloads/insta_reels/reel1.mp4",
+      "expected_output": "Agent infers lang=hi from 'Hinglish', asks only for the missing caption style, runs the pipeline with NLE export enabled, and hands over the nle/ folder with the Resolve-importable .xml plus import instructions.",
+      "files": [],
+      "expectations": [
+        "Does not re-ask for language (Hinglish implies hi) but does ask for caption style",
+        "Runs hypro edit with --lang hi and leaves NLE export enabled (no --no-nle)",
+        "Verifies nle/ contains the .xml and mentions File > Import > Timeline for Resolve",
+        "Reports kept duration and cue count from its own verification, not just the CLI log"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "what caption styles do you have? I want something neon with my own font, and I might export to Final Cut later.",
+      "expected_output": "Agent answers from references/presets-and-fonts.md: lists the 8 presets, explains how to add a custom preset JSON and how fonts resolve via fontconfig, and describes the .fcpxml export — it does NOT run the pipeline because no video was given.",
+      "files": [],
+      "expectations": [
+        "Lists the built-in presets by id with a one-line vibe each",
+        "Explains custom preset authoring: copy a JSON, id must match filename, validated at load",
+        "Explains font resolution: fontFamily must be installed, fontFallback chain, fc-cache",
+        "Mentions .fcpxml for Final Cut and does not run hypro edit on anything"
+      ]
+    }
+  ]
+}

@@ -29,3 +29,6 @@ out/
 
 # job artifacts saved from the running stack
 output/
+
+# Skill eval workspaces (run artifacts, not shipped)
+skills/*-workspace/
