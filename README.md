@@ -117,6 +117,16 @@ One transport detail: `/api/sidecar/*` is a Next rewrite, except
 request bodies at 10 MB — a >10 MB video used to arrive at the sidecar as
 a mid-stream disconnect and surface as a 500.
 
+## Agent skill
+
+`skills/hypro-edit/` is a cross-agent skill (Claude Code, OpenCode, Codex,
+Antigravity). It probes the input video, asks for caption style/language
+before running, then drives the CLI end-to-end and verifies the outputs.
+Install everywhere with `npx skills add . --skill hypro-edit --agent '*' --copy -y`
+(or copy the folder into your agent's skills directory). Evals and expected
+behaviours are in `skills/hypro-edit/evals/evals.json` — the whole skill is
+~5.4k tokens (cl100k_base), with details in `references/` loaded on demand.
+
 ## Licensing
 
 Code: **MIT**. Dakshina-derived lexicon data: **CC-BY-SA-4.0** (share-alike,
