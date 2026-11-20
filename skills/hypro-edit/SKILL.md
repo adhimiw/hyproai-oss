@@ -54,8 +54,13 @@ one question block; skip anything they already specified in their message:
 4. **Finishing target** — just the MP4, or an NLE project (Premiere /
    DaVinci / Final Cut / After Effects). If NLE: see Step 5.
 
-If the user answered all of these up front, confirm the plan in one line
-and proceed — never re-ask. If they asked something the skill cannot do
+**Style is never inferable.** Words like "trending karaoke" do not name a
+preset — always ask, even when the language, cuts and NLE target are all
+given. Do not silently pick a "flagship" preset; only skip the style
+question when the user names an actual preset id (`--style` value).
+
+If the user answered all four up front, confirm the plan in one line and
+proceed — never re-ask. If they asked something the skill cannot do
 (e.g. translate), say so instead of guessing.
 
 ### Step 3 — run the pipeline

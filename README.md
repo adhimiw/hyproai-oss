@@ -125,7 +125,7 @@ before running, then drives the CLI end-to-end and verifies the outputs.
 Install everywhere with `npx skills add . --skill hypro-edit --agent '*' --copy -y`
 (or copy the folder into your agent's skills directory). Evals and expected
 behaviours are in `skills/hypro-edit/evals/evals.json` — the whole skill is
-~5.4k tokens (cl100k_base), with details in `references/` loaded on demand.
+~5.5k tokens (cl100k_base), with details in `references/` loaded on demand.
 
 ## Licensing
 
